@@ -601,6 +601,17 @@
     .ws-key { font-size: 11.5px; padding: 8px 12px; }
     .pp-sec { font-size: 15px; }
   }
+
+  .ref-sec { margin: 18px 0; break-inside: auto; }
+  .ref-sec h3 { margin: 0 0 6px; } .ref-sec h4 { margin: 12px 0 4px; }
+  .ref-grid { display: grid; gap: 8px 12px; } .ref-grid.g2 { grid-template-columns: repeat(2, 1fr); } .ref-grid.g3 { grid-template-columns: repeat(3, 1fr); } .ref-grid.g4 { grid-template-columns: repeat(4, 1fr); } .ref-grid.g5 { grid-template-columns: repeat(5, 1fr); }
+  .ref-grid figure { margin: 0; text-align: center; break-inside: avoid; } .ref-grid figcaption { font-size: 13px; color: var(--muted, #555); }
+  .ref-grid .stave svg { max-width: 100%; height: auto; }
+  .ref-t { border-collapse: collapse; width: 100%; font-size: 14px; margin: 6px 0; } .ref-t th, .ref-t td { border: 1px solid var(--line, #ccc); padding: 4px 8px; text-align: left; vertical-align: middle; } .ref-t th { background: var(--sunk, #f2f2f2); }
+  .ref-t .stave { margin: 0; } .ref-t .stave svg { max-height: 54px; width: auto; }
+  .ref-terms { columns: 2; column-gap: 24px; font-size: 13.5px; } .ref-terms span { display: block; break-inside: avoid; margin: 2px 0; }
+  @media (max-width: 640px) { .ref-grid.g4, .ref-grid.g5 { grid-template-columns: repeat(2, 1fr); } .ref-grid.g3 { grid-template-columns: repeat(2, 1fr); } .ref-terms { columns: 1; } }
+  @media print { .ref-sec h3 { font-size: 15px; } .ref-grid .stave svg { max-height: 120px; } .ref-grid .stave svg[data-cols] { max-height: 210px; } }
 </style>
 
 <div class="shell">
@@ -1053,7 +1064,7 @@ const S = [
  ["G1–2",2,"notes","Diagnostic: what does she still know?","No new teaching. The aim is to find out which Grade 1–3 topics she can skip.|The check-up in Faye's corner covers notes, rhythm, time signatures, keys, scales, intervals, triads and terms, and fills in the Mastery tracker for you.","Ask her to write C, G, D and F major on the stave with key signatures, in treble and bass clef.|Ask her to spell the tonic triad of each.","The four 'together' questions in today's lesson pack, without help.|Name 10 notes from the lesson pack worksheet, including ledger lines.","Note detective: you label five notes and get two wrong on purpose. She catches them.","Set the Mastery tracker for every strand you tested. Anything already green gets only warm-ups from now on."],
  ["G2",2,"rhythm","Simple time: 2/4, 3/4, 4/4, 2/2, 3/2, 4/2 and 3/8","In simple time, each beat splits into two. The top number counts the beats; the bottom number names the beat: 2 = minim, 4 = crotchet, 8 = quaver.|3/4 and 3/8 both have three beats in a bar, but the beat is a different note.|Bar lines divide the music into equal amounts of time.","Clap a bar of 3/2, then a bar of 3/4. Same count, longer beats.|Give her incomplete bars and ask what is missing.|Find the time signature for four short rhythms.","Add bar lines to four rhythms, one each in 2/2, 3/2, 4/2 and 3/8.|Add the missing time signature to three bars.|Complete two bars with one rest each.","Rhythm police: you write three bars and one has the wrong total. She catches it.","5 out of 6 bars correct, and she can explain each total."],
  ["G2",2,"rhythm","Grouping notes and rests; triplets","Beams and rests show where the beats are. In 4/4 the middle of the bar stays visible.|A minim rest never starts on beat 2 of 4/4: write two crotchet rests.|A triplet fits three equal notes into the time of two.","Fix two badly grouped bars together.|Clap 'one-and', then 'trip-o-let', over the same pulse.|Find the triplet on Faye's picture card 4, then clap it.","Regroup three messy bars.|Add rests to complete three bars, in the right order.|Write a triplet group correctly, with its 3.","Same time, different split: alternate 'one-and' and 'trip-o-let' while you keep the pulse.","Groups rests beat by beat without prompting, and can say why."],
- ["G1–2",2,"bars","Review: rhythm, time signatures and note reading","No new teaching today. Start with <b>Fix my mistakes</b> in Faye's corner and talk through any she gets wrong.|Look at the Mastery tracker: re-teach anything red from Days 3–4, using that day's plan.|New in Faye's corner: Mark my answer. A friend has answered; she decides if it's right and corrects it. Checking is an exam skill.","Clap and count two rhythms from the lesson pack, saying the beats aloud.|Name ten notes in each clef from the lesson pack worksheet.","Today's practice in Faye's corner.|One Note ladder round in bass clef.","Rhythm police: you write three bars and one has the wrong number of beats. She catches it.","Most questions right first time, and she can explain why. If one topic is still shaky, repeat that day before moving on."],
+ ["G1–2",2,"bars","Review: rhythm, time signatures and note reading","No new teaching today. Start with <b>Fix my mistakes</b> in Faye's corner and talk through any she gets wrong.|Look at the Mastery tracker: re-teach anything red from Days 3–4, using that day's plan.|New in Faye's corner: Mark my answer. A friend has answered; she decides if it's right and corrects it. Checking is an exam skill.|There's also a printable Reference book (Papers list): clefs, note values, key signatures, scales, intervals, chords, ornaments, instruments and terms, all in one place to look things up.","Clap and count two rhythms from the lesson pack, saying the beats aloud.|Name ten notes in each clef from the lesson pack worksheet.","Today's practice in Faye's corner.|One Note ladder round in bass clef.","Rhythm police: you write three bars and one has the wrong number of beats. She catches it.","Most questions right first time, and she can explain why. If one topic is still shaky, repeat that day before moving on."],
  ["G3",3,"keys","Key signatures on the stave, up to four sharps or flats","Her mnemonic gives the order: sharps F C G D A E B, flats B E A D G C F.|With sharps, the last sharp is the 7th, so the major key is a semitone above it. With flats, the second-to-last flat names the key. One flat is the exception to learn by heart: it is F major.|Each sharp and flat has a fixed place on the stave. Copy the pattern exactly in both clefs.","Write the sharps of E major in treble and bass clef.|Write the flats of A♭ major in both clefs.|Name keys from written key signatures.","Write the key signatures of A, E, B♭ and A♭ major in both clefs.|Name six key signatures you show her.","Key-signature snap: you say 'three flats', she says 'E♭ major' and draws it.","Every key signature up to four sharps or flats, in the right places, in both clefs."],
  ["G3",3,"keys","Relative minors; writing minor scales","The relative minor starts on degree 6 of the major and shares its key signature.|Harmonic minor raises the 7th with an accidental, both up and down.|Melodic minor raises the 6th and 7th going up and cancels them coming down.","Find the relative minor of each major key up to four sharps or flats.|Write A harmonic minor, then E melodic minor, up and down.|Write one minor scale without a key signature, using accidentals only.","Write B harmonic minor and F melodic minor with key signatures.|Write C♯ harmonic minor without a key signature.|Circle the raised notes.","Minor makeover: you say a natural minor; she turns it into harmonic or melodic on command.","Builds both forms from the key signature and the rule, not from memory."],
  ["G3",3,"intervals","Degrees, tonic triads and intervals above the tonic","Degree numbers 1 to 8, and the tonic triad 1-3-5.|Interval number: count the letter names, including both ends.|Above the tonic of a major key, the 2nd, 3rd, 6th and 7th are major, and the 4th, 5th and octave are perfect. In a minor key the 3rd and 6th are minor, and the 7th is major in the harmonic form.","Write the tonic triads of E major and F minor.|Name the intervals above the tonic in D major, then in D minor.|Compare C–E with C–E♭.","Name eight intervals above a tonic, number and type.|Write four intervals above given tonics.","Interval transformer: you say 'major 3rd to minor 3rd'; she changes one note.","8 out of 10 intervals with both number and type right."],
@@ -2705,7 +2716,7 @@ function papersHTML() {
   const ps = state.papers || {};
   return `<div class="pp-list">${Object.keys(PAPER_DEF).map(k => `<div class="pp-row"><b>${esc(PAPER_DEF[k].title)}</b><span class="meta">${dayLabel(PAPER_DEF[k].day)}${ps[k] ? ` · ${ps[k].score}/75 on ${short(ps[k].date)}` : ""}</span><span class="spacer"></span><button class="btn small" type="button" data-act="paper" data-k="${k}">Open / print</button><button class="btn small" type="button" data-act="paperscreen" data-k="${k}">On screen</button></div>`).join("")}</div>
   <p style="margin-top:12px"><a href="downloads.html" target="_blank" rel="noopener">All the PDFs to download (lesson packs, papers, question banks)</a></p><p class="meta" style="margin-top:12px">Question bank: about 90 extra questions with answers, sorted by topic. Print one, or a few pages at a time.</p>
-  <div class="row-btns">${[3, 4, 5].map(l => `<button class="btn small" type="button" data-act="bank" data-k="${l}">Grade ${l} question bank</button>`).join("")}</div>`;
+  <div class="row-btns">${[3, 4, 5].map(l => `<button class="btn small" type="button" data-act="bank" data-k="${l}">Grade ${l} question bank</button>`).join("")}<button class="btn small" type="button" data-act="ref">Reference book (Grades 1–5)</button></div>`;
 }
 /* ---------- Question bank: extra questions by topic, for printing ---------- */
 const BANK_STRANDS = lvl => [["Rhythm and time signatures", ["rhythm", "bars"], 12], ["Pitch and clefs", ["notes", "write"], 10], ["Keys and scales", ["keys", "scales"], 12], ["Intervals", ["intervals"], 10],
@@ -3247,6 +3258,185 @@ GEN.check = lvl => {
   }
   return GEN.intervals(lvl);
 };
+
+/* ================= More content (Oct 8): semitones, chord tones, time signatures from words, opposites, transposed keys ================= */
+const OLDPAPER = () => typeof PAPER_OPTF !== "undefined" && PAPER_OPTF && !PAPER_OPTF.v2;
+
+/* ---------- Intervals: how many semitones? ---------- */
+(function () {
+  const base = GEN.intervals;
+  GEN.intervals = lvl => {
+    if (OLDPAPER()) return base(lvl);
+    if (lvl >= 3 && Math.random() < .12) {
+      const n = 2 + rnd(7), qs = isPerf(n) ? (lvl >= 4 && on("augdim") ? ["P", "P", "A", "d"] : ["P"]) : (lvl >= 4 && on("augdim") ? ["M", "m", "M", "m", "A", "d"] : ["M", "m"]), q = pick(qs);
+      const s = semis(q, n), wrong = [s - 1, s + 1, s + 2, s - 2].filter(x => x > 0).map(String);
+      const nb = n === 8 ? "octave" : ORD(n), name = `${QW[q]} ${nb}`;
+      const lo = 28, t = above(lo, 0, q, n);
+      return mk("intervals", `How many semitones are in ${art(name)}?`, String(s), wrong,
+        `${art(name)[0].toUpperCase() + art(name).slice(1)} is ${s} semitone${s === 1 ? "" : "s"}: for example C up to ${nm(m7(t.d), t.a)}. ${isPerf(n) ? (q === "P" ? "" : q === "A" ? "Augmented is one semitone more than perfect." : "Diminished is one semitone less than perfect.") : q === "M" ? "" : q === "m" ? "Minor is one semitone less than major." : q === "A" ? "Augmented is one semitone more than major." : "Diminished is one semitone less than minor."}`.trim(),
+        { spec: { clef: "treble", notes: [{ n: en(lo, 0), dur: "w" }, { n: en(t.d, t.a), dur: "w" }], minW: 200, sp: 60 }, play: [midi(lo, 0), midi(t.d, t.a)], hint: "Count the semitones on a keyboard: every key, black or white, is one step." });
+    }
+    return base(lvl);
+  };
+})();
+
+/* ---------- Chords: which chord has these notes? what's the 3rd or 5th of a chord? ---------- */
+(function () {
+  const base = GEN.harmony, RN = ["", "I", "II", "III", "IV", "V", "VI", "VII"];
+  GEN.harmony = lvl => {
+    if (OLDPAPER()) return base(lvl);
+    const r = Math.random();
+    if (lvl >= 4 && on("triads") && r < .16) {
+      const minor = lvl >= 5 && Math.random() < .35, k = pick(keysFor(lvl, minor ? "minor" : "major")), kname = minor ? MIN[k[0]] + " minor" : k[0] + " major";
+      const roots = [1, 4, 5].concat(lvl >= 5 && on("chord2") && !minor ? [2] : []), root = pick(roots);
+      if (r < .08) {
+        const notes = triad(k, root, minor);
+        return mk("harmony", `In ${kname}, which chord has the notes ${notes}?`, RN[root], roots.filter(x => x !== root).map(x => RN[x]).concat(["VI", "III"]).slice(0, 4),
+          `${notes.split("–")[0]} is degree ${root} of ${kname}, so the chord built on it is chord ${RN[root]}.`, { hint: "Find which degree of the scale the lowest note (the root) is." });
+      }
+      const part = pick(["root", "3rd", "5th"]), tones = triad(k, root, minor).split("–"), idx = { root: 0, "3rd": 1, "5th": 2 }[part];
+      const pool = [1, 2, 3, 4, 5, 6, 7].map(d => scaleNote(k, d, minor, true));
+      return mk("harmony", `What is the ${part} of chord ${RN[root]} in ${kname}?`, tones[idx], pool.filter(x => x !== tones[idx]),
+        `Chord ${RN[root]} in ${kname} is ${tones.join("–")}: root ${tones[0]}, 3rd ${tones[1]}, 5th ${tones[2]}.${minor && root === 5 ? " In a minor key, the 3rd of V is the raised leading note." : ""}`,
+        { hint: `Start on degree ${root}, then skip a note twice.` });
+    }
+    return base(lvl);
+  };
+})();
+
+/* ---------- Time signatures from a description ---------- */
+(function () {
+  const base = GEN.rhythm;
+  const ROWS = [[2, 4, "two crotchet beats", 2], [3, 4, "three crotchet beats", 2], [4, 4, "four crotchet beats", 2], [2, 2, "two minim beats", 2], [3, 2, "three minim beats", 2], [4, 2, "four minim beats", 2], [3, 8, "three quaver beats", 2],
+    [6, 8, "two dotted-crotchet beats", 3], [9, 8, "three dotted-crotchet beats", 3], [12, 8, "four dotted-crotchet beats", 3], [6, 4, "two dotted-minim beats", 4], [9, 4, "three dotted-minim beats", 4], [6, 16, "two dotted-quaver beats", 4], [12, 16, "four dotted-quaver beats", 4],
+    [5, 4, "five crotchet beats", 5], [7, 8, "seven quaver beats", 5]];
+  GEN.rhythm = lvl => {
+    if (OLDPAPER()) return base(lvl);
+    if (lvl >= 2 && Math.random() < .12) {
+      const pool = ROWS.filter(x => x[3] <= lvl && (x[3] < 4 || on("classify")) && (x[3] < 5 || on("irrtime"))), row = pick(pool);
+      const right = `${row[0]}/${row[1]}`, wrongs = shuffle(pool.filter(x => x !== row)).map(x => `${x[0]}/${x[1]}`);
+      const comp = row[2].includes("dotted");
+      return mk("rhythm", `Which time signature has ${row[2]} in each bar?`, right, wrongs,
+        comp ? `Compound time: each dotted beat splits into 3, so the top number is the beats × 3 (${row[0]}) and the bottom number names the small note (${row[1]}).` : `Simple time: the top number is the number of beats (${row[0]}) and the bottom number names the beat (${row[1]}).`,
+        { hint: comp ? "Dotted beats mean compound time: multiply the beats by 3." : "Top number: how many. Bottom number: what kind." });
+    }
+    return base(lvl);
+  };
+})();
+
+/* ---------- Terms: opposites ---------- */
+(function () {
+  const base = GEN.terms;
+  const OPP = [[1, "crescendo", "diminuendo"], [1, "accelerando", "rallentando"], [1, "legato", "staccato"], [1, "forte", "piano"], [1, "fortissimo", "pianissimo"], [2, "allegro", "adagio"],
+    [3, "presto", "largo"], [3, "tutti", "solo"], [4, "con sordino", "senza sordino"], [4, "pizzicato", "arco"], [4, "più mosso", "meno mosso"], [4, "con pedale", "senza pedale"]];
+  GEN.terms = lvl => {
+    if (OLDPAPER()) return base(lvl);
+    if (lvl >= 2 && Math.random() < .12) {
+      const pool = OPP.filter(x => x[0] <= lvl), [, a, b] = pick(pool), flip = Math.random() < .5, ask = flip ? b : a, ans = flip ? a : b;
+      const others = shuffle([].concat(...pool.map(x => [x[1], x[2]])).filter(x => x !== ask && x !== ans));
+      return mk("terms", `Which term means the opposite of ${ask}?`, ans, others, `${ask} and ${ans} are opposites.`, { big: ask, italic: true, hint: "Think what the word means first, then its opposite." });
+    }
+    return base(lvl);
+  };
+})();
+
+/* ---------- Transposing: which key is the part written in? ---------- */
+(function () {
+  const base = GEN.transpose;
+  const INST = [["clarinet in B♭", 2, "M", "a major 2nd higher"], ["trumpet in B♭", 2, "M", "a major 2nd higher"], ["clarinet in A", 3, "m", "a minor 3rd higher"], ["horn in F", 5, "P", "a perfect 5th higher"]];
+  const MAJN = MAJ.map(k => k[0]);
+  GEN.transpose = lvl => {
+    if (OLDPAPER()) return base(lvl);
+    if (Math.random() < .2) {
+      for (let t = 0; t < 30; t++) {
+        const [inst, n, q, how] = pick(INST), k = pick(MAJ.filter(x => x[1] <= 4)), tn = parseNote(k[0]);
+        const up = above(28 + tn.l, tn.a, q, n), wk = nm(m7(up.d), up.a);
+        if (!MAJN.includes(wk)) continue;
+        const kk = MAJ.find(x => x[0] === wk);
+        if (kk[1] > 5) continue;
+        const wrongs = shuffle(MAJN.filter(x => x !== wk && x !== k[0])).slice(0, 2).concat([k[0]]).map(x => x + " major");
+        return mk("transpose", `A piece is in ${k[0]} major (concert pitch). In which key is the ${inst} part written?`, wk + " major", wrongs,
+          `The ${inst} sounds lower than written, so its part is written ${how}: ${k[0]} major becomes ${wk} major (${kk[1] ? kk[1] + " " + (kk[2] === "#" ? "sharp" : "flat") + (kk[1] > 1 ? "s" : "") : "no sharps or flats"}).${inst === "horn in F" ? " (Horn parts are often written without a key signature, using accidentals.)" : ""}`,
+          { hint: "Written parts go UP by the same interval that the instrument sounds DOWN." });
+      }
+    }
+    return base(lvl);
+  };
+})();
+
+/* ================= Reference book: everything to look up, Grades 1–5 (printable) ================= */
+function refHTML() {
+  const S = (spec, z) => stave(spec, z || .8), W = n => ({ n, dur: "w" });
+  const sec = (t, body, intro) => `<section class="ref-sec"><h3>${t}</h3>${intro ? `<p class="meta">${intro}</p>` : ""}${body}</section>`;
+  const tbl = (head, rows) => `<table class="ref-t"><thead><tr>${head.map(h => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+  const out = [];
+
+  /* 1. Clefs and middle C */
+  out.push(sec("1. Clefs and middle C", `<div class="ref-grid g4">${[["treble", "Treble: ledger line below"], ["bass", "Bass: ledger line above"], ["alto", "Alto (Grade 4): middle line"], ["tenor", "Tenor (Grade 5): 4th line"]].map(([c, t]) => `<figure>${S({ clef: c, notes: [{ n: "C4", dur: "w", lbl: "C" }], minW: 120 })}<figcaption>${t}</figcaption></figure>`).join("")}</div>`,
+    "Find middle C first, then count steps up or down. Landmarks: treble G is the 2nd line; bass F is the 4th line."));
+  out.push(sec("Lines and spaces", tbl(["Clef", "Lines (bottom to top)", "Spaces (bottom to top)"], [["Treble", "E G B D F", "F A C E"], ["Bass", "G B D F A", "A C E G"], ["Alto", "F A C E G", "G B D F"], ["Tenor", "D F A C E", "E G B D"]])));
+
+  /* 2. Note values and rests */
+  const V = [["breve", "b", 8, "Grade 4"], ["semibreve", "w", 4], ["minim", "h", 2], ["crotchet", "q", 1], ["quaver", "e", "½"], ["semiquaver", "s", "¼"], ["demisemiquaver", "t", "⅛", "Grade 3"]];
+  out.push(sec("2. Note values and rests", tbl(["Note", "", "Rest", "Crotchet beats"], V.map(([nmv, d, b, g]) => [nmv + (g ? ` <span class="meta">(${g})</span>` : ""), S({ clef: null, notes: [{ n: "B4", dur: d }], minW: 60, end: false }, .6), S({ clef: null, notes: [{ n: "r", dur: d }], minW: 60, end: false }, .6), String(b)])),
+    "A dot adds half the note's value; a second dot adds half of that again (Grade 4). Triplets: 3 in the time of 2. Duplets: 2 in the time of 3."));
+
+  /* 3. Time signatures */
+  out.push(sec("3. Time signatures", tbl(["", "Duple (2 beats)", "Triple (3 beats)", "Quadruple (4 beats)"], [["Simple: beats split in 2", "2/2 · 2/4 · 2/8", "3/2 · 3/4 · 3/8", "4/2 · 4/4 · 4/8"], ["Compound: dotted beats split in 3", "6/4 · 6/8 · 6/16", "9/4 · 9/8 · 9/16", "12/4 · 12/8 · 12/16"], ["Irregular (Grade 5)", "5/4 · 5/8 (2+3 or 3+2)", "7/4 · 7/8 (2+2+3 …)", ""]]),
+    "Top number: how many beats (in compound time, beats × 3). Bottom number: the kind of note (2 minim, 4 crotchet, 8 quaver, 16 semiquaver). Halve every note → bottom number doubles."));
+
+  /* 4. Key signatures */
+  const order = ["C", "G", "D", "A", "E", "B", "F♯", "F", "B♭", "E♭", "A♭", "D♭", "G♭"];
+  out.push(sec("4. Key signatures", `<div class="ref-grid g3">${order.map(k => { const K = MAJ.find(x => x[0] === k); return `<figure>${S({ clef: "treble", key: keyNum(K), notes: [], minW: 150 }, .9)}${S({ clef: "bass", key: keyNum(K), notes: [], minW: 150 }, .9)}<figcaption><b>${k} major</b> · ${MIN[k]} minor</figcaption></figure>`; }).join("")}</div>`,
+    "Sharps go F C G D A E B; flats go B E A D G C F. Sharp keys: last sharp + one semitone. Flat keys: the second-to-last flat (one flat = F major). The relative minor is 3 semitones below the major (degree 6)."));
+  out.push(sec("Key signatures in alto and tenor clef (Grades 4–5)", `<div class="ref-grid g4">${["D", "A", "E", "B♭", "E♭", "A♭"].map(k => { const K = MAJ.find(x => x[0] === k); return `<figure>${S({ clef: "alto", key: keyNum(K), notes: [], minW: 120 }, .6)}${S({ clef: "tenor", key: keyNum(K), notes: [], minW: 120 }, .6)}<figcaption>${k} major</figcaption></figure>`; }).join("")}</div>`, "Top: alto clef. Bottom: tenor clef. In tenor clef the first sharp sits low (on the 2nd space up)."));
+
+  /* 5. Scales */
+  const up = (start, accs) => { const L = "CDEFGAB", s = L.indexOf(start[0]), o = +start.slice(-1); return [0, 1, 2, 3, 4, 5, 6, 7].map(k => { const l = L[(s + k) % 7], oc = o + Math.floor((s + k) / 7); return { n: l + (accs[l] || "") + oc, dur: "q" }; }); };
+  const scl = (title, notes) => `<figure>${S({ clef: "treble", notes, minW: 460, sp: 32 }, 1)}<figcaption>${title}</figcaption></figure>`;
+  const melDown = up("A4", { F: "#", G: "#" }).concat(up("A4", {}).reverse().slice(1));
+  out.push(sec("5. Scales", scl("C major: tone tone semitone, tone tone tone semitone", up("C4", {})) + scl("A natural minor (no changes)", up("A4", {})) +
+    scl("A harmonic minor: raise the 7th, up and down (G♯)", up("A4", { G: "#" })) + scl("A melodic minor: raise 6th and 7th going up, back to normal coming down", melDown) +
+    scl("Chromatic scale on C (Grade 4): every semitone, each letter at most twice", ["C4", "C#4", "D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", "A4", "A#4", "B4", "C5"].map(n => ({ n, dur: "q" }))),
+    "Harmonic minor has an augmented 2nd between degrees 6 and 7. A chromatic scale uses the same letter no more than twice in a row and never skips a letter."));
+  out.push(sec("Technical names of the degrees (Grade 4)", tbl(["Degree", "Name", "In C major"], [[1, "tonic", "C"], [2, "supertonic", "D"], [3, "mediant", "E"], [4, "subdominant", "F"], [5, "dominant", "G"], [6, "submediant", "A"], [7, "leading note", "B"]].map(r => r.map(String)))));
+
+  /* 6. Intervals */
+  const IV = [["m", 2], ["M", 2], ["m", 3], ["M", 3], ["P", 4], ["A", 4], ["d", 5], ["P", 5], ["m", 6], ["M", 6], ["m", 7], ["M", 7], ["P", 8], ["M", 9], ["P", 12]];
+  out.push(sec("6. Intervals above C", `<div class="ref-grid g5">${IV.map(([q, n]) => { const t = above(28, 0, q, n); return `<figure>${S({ clef: "treble", notes: [W("C4"), W(en(t.d, t.a))], minW: 120, sp: 40 }, .6)}<figcaption>${QW[q]} ${n === 8 ? "octave" : ORD(n)} · ${semis(q, n)}</figcaption></figure>`; }).join("")}</div>`,
+    "Count letter names for the number (C to G = 5th). Then count semitones for the quality. Major made one semitone smaller = minor; perfect or major one bigger = augmented; perfect or minor one smaller = diminished (Grade 5). Above an octave = compound (9th = octave + 2nd)."));
+
+  /* 7. Chords */
+  const CH = (name, a, b, c) => `<figure>${S({ clef: "treble", notes: [{ n: a, dur: "w", lbl: name + "a" }, { n: b, dur: "w", lbl: name + "b" }, { n: c, dur: "w", lbl: name + "c" }], minW: 220, sp: 50 }, .7)}<figcaption>Chord ${name}</figcaption></figure>`;
+  out.push(sec("7. Chords and inversions in C major (Grades 4–5)", `<div class="ref-grid g2">${CH("I", ["C4", "E4", "G4"], ["E4", "G4", "C5"], ["G4", "C5", "E5"])}${CH("II", ["D4", "F4", "A4"], ["F4", "A4", "D5"], ["A4", "D5", "F5"])}${CH("IV", ["F4", "A4", "C5"], ["A4", "C5", "F5"], ["C5", "F5", "A5"])}${CH("V", ["G4", "B4", "D5"], ["B4", "D5", "G5"], ["D5", "G5", "B5"])}</div>`,
+    "a = root in the bass, b = 3rd in the bass, c = 5th in the bass. In a minor key, chord V has the raised 7th: in A minor, V is E–G♯–B."));
+  out.push(sec("Cadences (Grade 5)", tbl(["Cadence", "Chords", "Sounds"], [["Perfect", "V – I", "finished, like a full stop"], ["Plagal", "IV – I", "finished, softer: the 'Amen'"], ["Imperfect", "I, II or IV – V", "unfinished, like a comma"]]) +
+    `<div class="ref-grid g3">${[["Perfect V–I", ["G4", "B4", "D5"], ["G4", "C5", "E5"], "G2", "C3"], ["Plagal IV–I", ["F4", "A4", "C5"], ["E4", "G4", "C5"], "F2", "C3"], ["Imperfect I–V", ["E4", "G4", "C5"], ["D4", "G4", "B4"], "C3", "G2"]].map(([t, a, b, ba, bb]) => `<figure><div class="stave">${Eng.grand({ top: { clef: "treble", notes: [{ n: a, dur: "h" }, { n: b, dur: "h" }], minW: 110 }, bottom: { clef: "bass", notes: [{ n: ba, dur: "h" }, { n: bb, dur: "h" }], minW: 110 }, key: 0, gap: 70, end: true, z: .6 })}</div><figcaption>${t} in C</figcaption></figure>`).join("")}</div>`));
+
+  /* 8. Ornaments and signs */
+  out.push(sec("8. Ornaments (Grade 4)", `<div class="ref-grid g4">${[["tr", "Trill: rapid alternation with the note above"], ["mord", "Upper mordent: note, note above, note"], ["mordInv", "Lower mordent: note, note below, note"], ["turn", "Turn: above, note, below, note"]].map(([o, t]) => `<figure>${S({ clef: "treble", notes: [{ n: "C5", dur: "h", orn: o }], minW: 90 }, .7)}<figcaption>${t}</figcaption></figure>`).join("")}</div>`,
+    "Acciaccatura: tiny note with a slash, crushed in as fast as possible. Appoggiatura: small note without a slash, takes part of the main note's time."));
+
+  /* 9. Transposing and instruments */
+  out.push(sec("9. Transposing instruments (Grade 5)", tbl(["Instrument", "Sounds", "So the part is written", "Key signature"], [["Clarinet in B♭, trumpet in B♭", "a major 2nd lower", "a major 2nd higher", "2 flats fewer (or 2 sharps more)"], ["Clarinet in A", "a minor 3rd lower", "a minor 3rd higher", "3 sharps more (or 3 flats fewer)"], ["Horn in F, cor anglais", "a perfect 5th lower", "a perfect 5th higher", "1 sharp more; horn often has no key signature"], ["Double bass", "an octave lower", "an octave higher", "same"], ["Piccolo", "an octave higher", "an octave lower", "same"]])));
+  out.push(sec("Instruments and voices", tbl(["Family", "Instruments (high to low)", "Clefs"], [["Woodwind", "piccolo, flute, oboe, clarinet, cor anglais, bassoon", "treble; bassoon bass (tenor for high notes)"], ["Brass", "trumpet, horn, trombone, tuba", "treble; trombone and tuba bass"], ["Percussion", "timpani, xylophone, glockenspiel, side drum, cymbals, triangle", "timpani bass"], ["Strings", "violin, viola, cello, double bass, harp", "violin treble; viola alto; cello bass (tenor high)"], ["Voices", "soprano, alto (contralto), tenor, bass", "treble; bass for bass voices"]]),
+    "Score order, top to bottom: woodwind, brass, percussion, strings."));
+
+  /* 10. Terms */
+  const grp = {}; TERMS.forEach(t => { (grp[t[0]] = grp[t[0]] || []).push(t); });
+  out.push(sec("10. Terms by grade", Object.keys(grp).sort().map(g => `<h4>Grade ${g}</h4><div class="ref-terms">${grp[g].map(t => `<span><i>${esc(t[1])}</i>: ${esc(t[2])}</span>`).join("")}</div>`).join("")));
+  return out.join("");
+}
+function openRef() {
+  const el = $("teach");
+  el.innerHTML = `<div class="teach-in ws ref">
+    <div class="teach-top no-print"><button class="btn" type="button" data-act="tclose">← Close</button><span class="spacer"></span><button class="btn primary" type="button" data-act="wsprint">Print</button></div>
+    <header class="ws-head"><h2>Theory reference book, Grades 1–5</h2><p class="meta">Everything to look up in one place: clefs, note values, time and key signatures, scales, intervals, chords, cadences, ornaments, instruments and terms.</p></header>
+    ${refHTML()}
+  </div>`;
+  el.hidden = false; document.documentElement.classList.add("teach-open"); el.scrollTop = 0;
+}
+document.addEventListener("click", e => { const a = e.target.closest("[data-act]"); if (a && a.dataset.act === "ref") openRef(); });
 
 /* ---------- Drill catalogue ---------- */
 const DR = {
