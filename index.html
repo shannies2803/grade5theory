@@ -3364,6 +3364,106 @@ const OLDPAPER = () => typeof PAPER_OPTF !== "undefined" && PAPER_OPTF && !PAPER
   };
 })();
 
+/* ================= More content (Oct 10): melody-reading questions, repeats and D.C., term languages, transposing instruments ================= */
+
+/* ---------- Music in context: more questions about the same melody ---------- */
+(function () {
+  const base = GEN.context;
+  const L7 = "CDEFGAB", ACCS = { "#": "♯", b: "♭", x: "𝄪", bb: "𝄫", "": "" };
+  const parseN = n => { const m = /^([A-G])(bb|#|b|x)?(-?\d+)$/.exec(n); return { l: m[1], a: m[2] || "", o: +m[3], m: 12 * (+m[3] + 1) + [0, 2, 4, 5, 7, 9, 11][L7.indexOf(m[1])] + ({ "#": 1, b: -1, x: 2, bb: -2, "": 0 })[m[2] || ""] }; };
+  const VAL = { w: 4, h: 2, q: 1, e: .5, s: .25 };
+  GEN.context = lvl => {
+    const q = base(lvl);
+    if (OLDPAPER() || (typeof CTX_FORCE !== "undefined" && CTX_FORCE) || Math.random() > .3 || !q.spec || !q.spec2) return q;
+    const bars = []; let cur = [];
+    q.spec.notes.concat([{ bar: 1 }], q.spec2.notes).forEach(n => { if (n.bar) { if (cur.length) bars.push(cur); cur = []; } else cur.push(n); }); if (cur.length) bars.push(cur);
+    const nb = bars.length, name = n => { const p = parseN(n.n); return p.l + ACCS[p.a]; };
+    const clean = sp => Object.assign({}, sp, { notes: sp.notes.map(n => { const o = Object.assign({}, n); if (o.lbl === "x" || o.lbl === "y") delete o.lbl; return o; }) });
+    const keep = { spec: clean(q.spec), spec2: clean(q.spec2), tempo: q.tempo, play: q.play };
+    const types = ["count", "lowest", "times"].concat(lvl >= 2 ? ["dotted", "longest"] : []);
+    const type = pick(types);
+    if (type === "count") {
+      const bi = 1 + rnd(nb - 1), n = bars[bi].length;
+      return Object.assign(mk("context", `How many notes are in bar ${bi + 1}?`, String(n), [n - 1, n + 1, n + 2, n - 2].filter(x => x > 0).map(String), `Bar ${bi + 1} has ${n} note${n > 1 ? "s" : ""}: ${bars[bi].map(name).join(", ")}.`, { hint: "Count the noteheads between the two bar lines." }), keep);
+    }
+    if (type === "lowest") {
+      const all = [].concat(...bars), lo = all.reduce((a, b) => parseN(b.n).m < parseN(a.n).m ? b : a), ln = name(lo);
+      const others = [...new Set(all.map(name))].filter(x => x !== ln);
+      if (others.length < 2) return q;
+      return Object.assign(mk("context", "Which is the lowest note in the melody?", ln, others, `The lowest note is ${ln}: it sits lowest on the stave.`, { hint: "Look for the note that sits lowest on the stave." }), keep);
+    }
+    if (type === "times") {
+      const all = [].concat(...bars), counts = {}; all.forEach(n => { counts[name(n)] = (counts[name(n)] || 0) + 1; });
+      const nmx = pick(Object.keys(counts)), c = counts[nmx];
+      return Object.assign(mk("context", `How many times does the note ${nmx} appear in the melody?`, String(c), [c - 1, c + 1, c + 2].filter(x => x > 0).map(String), `${nmx} appears ${c} time${c > 1 ? "s" : ""}. Count every ${nmx[0]}, in every octave.`, { hint: `Find every ${nmx[0]} on the stave, in either octave.` }), keep);
+    }
+    if (type === "dotted") {
+      const withDot = bars.map((b, i) => b.some(n => n.dot) ? i : -1).filter(i => i >= 0 && i < nb - 1);
+      if (withDot.length !== 1) return q;
+      const bi = withDot[0];
+      return Object.assign(mk("context", "Which bar has a dotted note in it (not counting the last bar)?", `Bar ${bi + 1}`, bars.slice(0, nb - 1).map((_, i) => `Bar ${i + 1}`), `Bar ${bi + 1} has the dotted note. A dot adds half the note's value.`, { hint: "Look for a small dot just after a notehead." }), keep);
+    }
+    if (type === "longest") {
+      const all = [].concat(...bars.slice(0, nb - 1)), len = n => VAL[n.dur] * (n.dot ? 1.5 : 1), mx = Math.max(...all.map(len)), nm2 = { 4: "semibreve", 3: "dotted minim", 2: "minim", 1.5: "dotted crotchet", 1: "crotchet", .5: "quaver" };
+      const right = nm2[mx]; if (!right) return q;
+      return Object.assign(mk("context", "What is the longest note value in bars 1 to " + (nb - 1) + "?", right, Object.values(nm2).filter(x => x !== right), `The longest note before the last bar is a ${right}.`), keep);
+    }
+    return q;
+  };
+})();
+
+/* ---------- Signs: repeats, D.C. and D.S. — how many bars are played? ---------- */
+(function () {
+  const base = GEN.signs;
+  GEN.signs = lvl => {
+    if (OLDPAPER() || lvl < 2 || Math.random() > .12) return base(lvl);
+    const t = pick(lvl >= 3 ? ["repeat", "repeat", "dc", "dcfine", "ds"] : ["repeat", "dc"]);
+    if (t === "repeat") {
+      const n = 4 + rnd(5), a = 1 + rnd(n - 2), b = a + 1 + rnd(n - a); /* repeat bars a..b */
+      const tot = n + (b - a + 1);
+      return mk("signs", `A piece has ${n} bars. There are repeat marks at the start of bar ${a} and the end of bar ${b}. How many bars are played altogether?`, String(tot), [n, tot + 1, tot - 1, n + b].filter(x => x !== tot).map(String),
+        `Play bars 1 to ${b}, go back to bar ${a} and play to ${b} again (${b - a + 1} more bars), ${b < n ? `then carry on to bar ${n}` : "and that's the end"}: ${n} + ${b - a + 1} = ${tot}.`, { hint: "Repeat marks: play the bars between them twice." });
+    }
+    if (t === "dc") {
+      const n = 4 + rnd(6), tot = 2 * n;
+      return mk("signs", `A piece has ${n} bars and ends with "D.C." (da capo). How many bars are played altogether?`, String(tot), [n, tot - 1, tot + 1, n + 1].map(String), `D.C. means go back to the beginning and play it all again: ${n} + ${n} = ${tot}.`, { hint: "D.C. = da capo = from the head (the beginning)." });
+    }
+    if (t === "dcfine") {
+      const n = 6 + rnd(5), f = 2 + rnd(n - 3), tot = n + f;
+      return mk("signs", `A piece has ${n} bars. "Fine" is written at the end of bar ${f}, and "D.C. al Fine" at the end. How many bars are played altogether?`, String(tot), [n, 2 * n, tot + 1, tot - 1].map(String), `Play all ${n} bars, go back to the beginning (D.C.) and stop at Fine at the end of bar ${f}: ${n} + ${f} = ${tot}.`, { hint: "Fine means 'the end' — it's where you stop the second time." });
+    }
+    const n = 6 + rnd(5), s = 2 + rnd(n - 3), tot = n + (n - s + 1);
+    return mk("signs", `A piece has ${n} bars. The sign 𝄋 (segno) is at the start of bar ${s}, and "D.S." is at the end. How many bars are played altogether?`, String(tot), [n, 2 * n, tot + 1, tot - 1, n + s].filter(x => x !== tot).map(String),
+      `Play all ${n} bars, then go back to the sign at bar ${s} (D.S. = dal segno) and play to the end again: ${n} + ${n - s + 1} = ${tot}.`, { hint: "D.S. = dal segno = from the sign." });
+  };
+})();
+
+/* ---------- Terms: which language? (Grades 4–5) ---------- */
+(function () {
+  const base = GEN.terms;
+  GEN.terms = lvl => {
+    if (OLDPAPER() || lvl < 4 || !on("terms4") || Math.random() > .1) return base(lvl);
+    const lang = pick(["French", "French", "German", "Italian"].filter(l => l !== "German" || (lvl >= 5 && on("terms5"))));
+    const pool = TERMS_DATA.filter(t => tlang(t[2]) === lang && t[0] <= lvl);
+    if (!pool.length) return base(lvl);
+    const t = pick(pool);
+    return mk("terms", `Which language is the term "${t[1]}"?`, lang, ["Italian", "French", "German", "Latin"].filter(x => x !== lang),
+      `${t[1]} is ${lang} for "${tclean(t[2])}". Italian terms are the most common; French ones arrive at Grade 4 and German ones at Grade 5.`, { big: t[1], italic: true });
+  };
+})();
+
+/* ---------- Instruments: which ones transpose? (Grade 5) ---------- */
+(function () {
+  const base = GEN.world;
+  const TRANS = ["clarinet in B♭", "trumpet in B♭", "horn in F", "clarinet in A", "cor anglais"], CONCERT = ["flute", "oboe", "violin", "viola", "cello", "bassoon", "trombone", "tuba"];
+  GEN.world = lvl => {
+    if (OLDPAPER() || lvl < 5 || !on("transp") || Math.random() > .12) return base(lvl);
+    const want = Math.random() < .5, right = pick(want ? TRANS : CONCERT), wrongs = shuffle(want ? CONCERT : TRANS).slice(0, 3);
+    return mk("world", want ? "Which of these is a transposing instrument (it sounds a different note from the one written)?" : "Which of these sounds at the pitch it's written (a concert-pitch instrument)?", right, wrongs,
+      want ? `The ${right} is a transposing instrument. Flutes, oboes, strings, bassoons, trombones and tubas sound as written (the double bass and piccolo just move by an octave).` : `The ${right} sounds as written. The B♭ and A clarinets, B♭ trumpet, horn in F and cor anglais all transpose.`);
+  };
+})();
+
 /* ================= Reference book: everything to look up, Grades 1–5 (printable) ================= */
 function refHTML() {
   const S = (spec, z) => stave(spec, z || .8), W = n => ({ n, dur: "w" });
