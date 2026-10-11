@@ -1868,7 +1868,7 @@ const GEN = {
       (isPerf(n) ? ["P", "A", "d"] : ["M", "m", "A", "d"]).forEach(x => { if ((lvl >= 4 && on("augdim")) || ["M", "m", "P"].includes(x)) cands.push(ilabel(x, n)); });
       [n - 1, n + 1].filter(x => x >= 2 && x <= 15).forEach(x => cands.push(ilabel(isPerf(x) ? (q === "M" || q === "m" ? "P" : q) : (q === "P" ? "M" : q), x)));
       const simple = n > 8 ? ` It's an octave plus ${art(ORD(n - 7))}, so it's also a compound ${QW[q]} ${ORD(n - 7)}.` : "";
-      return mk("intervals", `Name this interval.`, ans, cands, `${count} ${semis(q, n)} semitones, so it's ${art(ans)}.${simple}`, { sub: `${loN} up to ${hiN}`, spec, play });
+      return mk("intervals", `Name this interval.`, ans, cands, `${count} ${semis(q, n)} semitone${semis(q, n) === 1 ? "" : "s"}, so it's ${art(ans)}.${simple}`, { sub: `${loN} up to ${hiN}`, spec, play });
     }
   },
   rhythm(lvl) {
@@ -2350,7 +2350,7 @@ GEN.context = function (lvl) {
       const mkL = steps => { const out = []; let m = st; out.push(spellSharp(m)); steps.forEach(s => { m += s; out.push(spellSharp(m)); }); return out; };
       const chrom = mkL([1, 1, 1, 1, 1]), whole = mkL([2, 2, 2, 2, 2]), gap = mkL([1, 1, 2, 1, 1]);
       const opt = (ns, lab) => ({ spec: { clef: "treble", notes: ns.map(x => ({ n: en(x.d, x.a), dur: "w" })), minW: 260, sp: 34, end: false }, label: lab });
-      return mk("scales", "Which of these is part of a chromatic scale?", opt(chrom, "only semitones"), [opt(whole, "only tones"), opt(gap, "one tone in the middle")],
+      return mk("scales", "Which of these moves like a chromatic scale?", opt(chrom, "only semitones"), [opt(whole, "only tones"), opt(gap, "one tone in the middle")],
         "A chromatic scale moves only in semitones, so every note is the very next key on the piano.", { bigOpts: true, staveOpts: true, hint: "Chromatic means every step is a semitone." });
     }
     return baseScales(lvl);
@@ -2906,7 +2906,7 @@ cardAnswer = function (knew) {
 };
 
 /* ---------- Note words: notes that spell a word ---------- */
-const NOTE_WORDS = ["BAG", "CAB", "BED", "BEE", "EGG", "ADD", "DAD", "ACE", "AGE", "FED", "BAD", "FAD", "GAG", "DEB", "FACE", "CAGE", "CAFE", "FADE", "BEAD", "BEEF", "DEAF", "DEED", "FEED", "BADGE", "EDGE", "CABBAGE", "DECADE", "BAGGAGE", "ACCEDE", "DEFACE", "EFFACE", "BAGGED", "CAGED", "FACED", "FADED", "ADDED", "BEADED"];
+const NOTE_WORDS = ["BAG", "CAB", "BED", "BEE", "EGG", "ADD", "DAD", "ACE", "AGE", "FED", "BAD", "FAD", "GAG", "FACE", "CAGE", "CAFE", "FADE", "BEAD", "BEEF", "DEAF", "DEED", "FEED", "BADGE", "EDGE", "CABBAGE", "DECADE", "BAGGAGE", "ACCEDE", "DEFACE", "EFFACE", "BAGGED", "CAGED", "FACED", "FADED", "ADDED", "BEADED"];
 GEN.words = function (lvl) {
   const w = pick(NOTE_WORDS), clefs = ["treble", "bass"].concat(lvl >= 4 && on("alto") ? ["alto"] : [], lvl >= 5 && on("tenor") ? ["tenor"] : []), clef = pick(lvl >= 3 ? clefs : ["treble", "treble", "bass"]);
   const lo = BOT[clef] - (lvl >= 3 ? 3 : 1), hi = BOT[clef] + (lvl >= 3 ? 11 : 9);
@@ -3538,6 +3538,211 @@ function openRef() {
 }
 document.addEventListener("click", e => { const a = e.target.closest("[data-act]"); if (a && a.dataset.act === "ref") openRef(); });
 
+/* ================= Exam simulator: a fresh full-length paper in the style of the online exam (Grades 1–5) ================= */
+/* section marks as in the online exam: 75 in all; pass 50, merit 60, distinction 65 */
+const SIM_SECTIONS = lvl => [
+  ["1", "Rhythm", [["rhythm", 2], ["bars", 2], ["rhythm", 2], ["bars", 2], ["bars", 2]]],
+  ["2", "Pitch", [["notes", 2], ["write", 2], ["notes", 2], ["write", 2], [lvl >= 5 ? "transpose" : "notes", 2]]],
+  ["3", "Keys and scales", [["keys", 3], ["scales", 3], ["keys", 3], ["scales", 3], ["keys", 3]]],
+  ["4", "Intervals", [["intervals", 2], ["intervals", 2], ["intervals", 2], ["intervals", 2], ["intervals", 2]]],
+  ["5", "Chords", [["harmony", 2], ["harmony", 2], ["harmony", 2], ["harmony", 2], ["harmony", 2]]],
+  ["6", "Terms, signs and instruments", [["terms", 2], ["signs", 2], ["terms", 2], [lvl >= 4 ? "world" : "terms", 2], ["signs", 2]]],
+  ["7", "Music in context", [["context", 2], ["context", 2], ["context", 2], ["context", 2], ["context", 2]]],
+];
+const SIM_GRADES = [[2, "Grades 1–2", 90], [3, "Grade 3", 90], [4, "Grade 4", 120], [5, "Grade 5", 120]];
+const SIM_BAND = m => m >= 65 ? ["Distinction", "d"] : m >= 60 ? ["Merit", "m"] : m >= 50 ? ["Pass", "p"] : ["Not yet a pass", "n"];
+let SIM_PICK = null;
+function simBuild(lvl) {
+  const base = (Date.now() % 1e9) | 0, qs = [], sect = [];
+  GATE = 999;
+  try {
+    SIM_SECTIONS(lvl).forEach(([n, name, items], si) => {
+      const seen = new Set();
+      items.forEach(([kind, marks], j) => {
+        let q;
+        if (kind === "context") {
+          const want = CTX_TYPES(lvl)[j];
+          q = seeded(base + 77, () => { CTX_FORCE = want; try { return GEN.context(lvl); } finally { CTX_FORCE = null; } });
+          if (/Which key is this melody in/.test(q.prompt) && want !== "key") q = seeded(base + 77, () => { CTX_FORCE = "tempo"; try { return GEN.context(lvl); } finally { CTX_FORCE = null; } });
+        } else for (let t = 0; t < 30; t++) { q = seeded(base + si * 50 + j * 7 + t * 1013, () => GEN[kind](lvl)); if (!seen.has(qKey(q)) && !q.listen) break; }
+        seen.add(qKey(q)); q._marks = marks; q._sim = { n: qs.length + 1, sect: n, name }; qs.push(q); sect.push([n, name]);
+      });
+    });
+  } finally { GATE = null; }
+  return { qs, sect };
+}
+/* ---------- the start screen ---------- */
+function simHome() {
+  if (typeof TP !== "undefined" && TP.locked && TP.locked()) { TP.paywall && TP.paywall("The exam simulator is part of the full course."); return; }
+  paused = null; R = null; setView("kid");
+  const hist = (state.sims || []).slice(-8).reverse(), def = SIM_PICK || Math.min(5, Math.max(2, curLvl()));
+  $("kid").innerHTML = `<div class="drill-bar"><button class="btn ghost" type="button" data-act="home">← Home</button><b class="r-title">Exam simulator</b></div>
+    <div class="sim-intro"><h2>A full exam, like the real one</h2>
+    <p>A brand-new paper every time: 35 questions in 7 sections, 75 marks, with a timer. Move between questions freely, flag the ones to come back to, and check everything before you submit. Marks and answers come at the end, just like the online exam.</p>
+    <div class="sim-grades" role="radiogroup" aria-label="Grade">${SIM_GRADES.map(([l, lab, min]) => `<button type="button" role="radio" aria-checked="${l === def}" data-simg="${l}"><b>${lab}</b><small>${min === 90 ? "1½ hours" : "2 hours"}</small></button>`).join("")}</div>
+    <p><button class="btn primary" type="button" data-act="simready">Get ready</button></p>
+    ${hist.length ? `<h3>Your exams</h3><ul class="sim-hist">${hist.map(h => `<li><span>${short(h.date)}</span><span>${esc(lvlLabel(h.lvl))}</span><b>${h.score}/75</b><span class="sim-band b-${SIM_BAND(h.score)[1]}">${SIM_BAND(h.score)[0]}</span><span class="meta">${h.mins} min</span></li>`).join("")}</ul>` : ""}
+    <p class="meta">Our own papers in the style of the ABRSM online exam, made fresh from the course's question bank. Pass 50, merit 60, distinction 65.</p></div>`;
+  SIM_PICK = def;
+}
+function simReady() {
+  const g = SIM_GRADES.find(x => x[0] === SIM_PICK) || SIM_GRADES[3];
+  $("kid").innerHTML = `<div class="drill-bar"><button class="btn ghost" type="button" data-act="examsim">← Back</button><b class="r-title">Before you start</b></div>
+    <div class="sim-intro"><h2>${esc(g[1])}: exam conditions</h2>
+    <ul class="sim-check">${["A quiet room, with the door closed", "Nothing on the desk: no notes, books or phone", "Device charged or plugged in, sound on", "Rough paper and a pencil are fine for working out", `Allow ${g[2] === 90 ? "1½ hours" : "2 hours"} with no breaks`, "Nobody helps: in the real exam a camera watches the whole time"].map((t, i) => `<li><label><input type="checkbox" data-simc="${i}"> ${esc(t)}</label></li>`).join("")}</ul>
+    <p class="meta">Tick everything to start. The timer begins straight away.</p>
+    <p><button class="btn primary" type="button" data-act="simgo" disabled>Start the exam</button></p></div>`;
+}
+function simStart() {
+  const g = SIM_GRADES.find(x => x[0] === SIM_PICK) || SIM_GRADES[3], p = simBuild(g[0]);
+  startRound({ mode: "mock", el: $("kid"), qs: p.qs, sect: p.sect, minutes: g[2], title: `${g[1]} exam`, sim: { lvl: g[0], start: Date.now(), flags: {}, warned: {} } });
+  document.documentElement.classList.add("sim-on");
+}
+/* ---------- the exam screen: built on the paper mode, with a navigator, flags and a review page ---------- */
+const simAnswered = q => q.write ? !!q._placed : q._pick !== undefined;
+function simNavHTML() {
+  return `<nav class="sim-nav" aria-label="Questions">${SIM_SECTIONS(R.sim.lvl).map(([n, name]) => `<div class="sim-sec"><span class="sim-sn" title="${esc(name)}">${n}</span>${R.qs.map((q, k) => q._sim.sect !== n ? "" : `<button type="button" data-simgo="${k}" class="${simAnswered(q) ? "ans" : ""}${R.sim.flags[k] ? " flag" : ""}${k === R.i ? " cur" : ""}" aria-label="Question ${k + 1}${simAnswered(q) ? ", answered" : ", not answered"}${R.sim.flags[k] ? ", flagged" : ""}">${k + 1}</button>`).join("")}</div>`).join("")}
+    <p class="sim-key"><i class="ans"></i> answered <i></i> not answered <i class="flag"></i> flagged</p></nav>`;
+}
+function simDecorate() {
+  const el = R.el, q = R.qs[R.i], bar = el.querySelector(".drill-bar");
+  if (bar) bar.outerHTML = `<div class="drill-bar sim-bar"><b class="r-title">${esc(R.title)}</b><span class="spacer"></span><span class="timer" id="timer"></span><span class="dots" hidden></span></div>`;
+  const qq = el.querySelector(".q"); if (!qq) return;
+  const meta = qq.querySelector("p.meta"); if (meta) meta.innerHTML = `<b>Section ${q._sim.sect}: ${esc(q._sim.name)}</b> · Question ${R.i + 1} of ${R.qs.length} · ${q._marks} mark${q._marks > 1 ? "s" : ""}`;
+  const nav = qq.querySelector(".mock-nav");
+  if (nav) nav.outerHTML = `<div class="mock-nav"><button class="btn" type="button" data-act="mprev" ${R.i === 0 ? "disabled" : ""}>← Previous</button><button class="btn ghost sim-flag${R.sim.flags[R.i] ? " on" : ""}" type="button" data-act="simflag" aria-pressed="${!!R.sim.flags[R.i]}">⚑ ${R.sim.flags[R.i] ? "Flagged" : "Flag for review"}</button><span class="spacer"></span>${R.i === R.qs.length - 1 ? `<button class="btn primary" type="button" data-act="simreview">Review answers</button>` : `<button class="btn primary" type="button" data-act="mnext">Next →</button>`}</div>`;
+  const conf = qq.querySelector("#mconfirm"); if (conf) conf.remove();
+  qq.insertAdjacentHTML("beforebegin", simNavHTML());
+  mockTick();
+}
+function simRefreshNav() { if (!R || !R.sim) return; const n = R.el.querySelector(".sim-nav"); if (n) n.outerHTML = simNavHTML(); }
+function simReview() {
+  const un = R.qs.map((q, k) => simAnswered(q) ? -1 : k).filter(k => k >= 0), fl = Object.keys(R.sim.flags).filter(k => R.sim.flags[k]).map(Number);
+  R.el.innerHTML = `<div class="drill-bar sim-bar"><b class="r-title">${esc(R.title)}: review</b><span class="spacer"></span><span class="timer" id="timer"></span><span class="dots" hidden></span></div>${simNavHTML()}
+    <div class="sim-intro"><h2>Check before you submit</h2>
+    <p>${R.qs.length - un.length} of ${R.qs.length} questions answered.${un.length ? ` <b>${un.length} not answered:</b> ${un.map(k => `<button class="linkish" type="button" data-simgo="${k}">${k + 1}</button>`).join(", ")}. A guess is better than a blank.` : " Every question has an answer."}</p>
+    ${fl.length ? `<p><b>Flagged to check:</b> ${fl.map(k => `<button class="linkish" type="button" data-simgo="${k}">${k + 1}</button>`).join(", ")}</p>` : ""}
+    <p class="row-btns"><button class="btn" type="button" data-simgo="0">Go back to the questions</button><button class="btn primary" type="button" data-act="simsubmit">Submit the exam</button></p>
+    <p class="meta" id="simconf" hidden>Submit now? You can't change answers after this. <button class="btn small primary" type="button" data-act="simsure">Yes, submit</button> <button class="btn small" type="button" data-act="simnot">Not yet</button></p></div>`;
+  mockTick();
+}
+/* ---------- results ---------- */
+function simEnd() {
+  clearInterval(R.tick); document.documentElement.classList.remove("sim-on");
+  const by = {}, wrong = []; let marks = 0;
+  R.qs.forEach(q => { const s = q._sim.sect, ok = q.write ? writeOK(q) : q._pick === q.a; by[s] = by[s] || { name: q._sim.name, got: 0, max: 0 }; by[s].max += q._marks; if (ok) { marks += q._marks; by[s].got += q._marks; } else { wrong.push(q); if (simAnswered(q)) addMistake(q); } });
+  const mins = Math.max(1, Math.round((Date.now() - R.sim.start) / 60000)), [band, bk] = SIM_BAND(marks), lvl = R.sim.lvl;
+  state.sims = (state.sims || []).concat([{ date: TODAY, lvl, score: marks, mins, sections: Object.keys(by).map(k => by[k].got) }]).slice(-30);
+  starToday(marks >= 50 ? 5 : 2); daily().g = 1; checkDaily(); save(); R.active = false;
+  const weak = Object.keys(by).map(k => [k, by[k]]).sort((a, b) => a[1].got / a[1].max - b[1].got / b[1].max)[0];
+  const ansTxt = (q, k) => k === undefined ? "no answer" : optLabel(q.opts[k]);
+  R.el.innerHTML = `<div class="drill-bar"><button class="btn ghost" type="button" data-act="home">← Home</button><b class="r-title">${esc(R.title)}: results</b></div>
+    <div class="sim-res"><p class="sim-score"><b>${marks}</b><span>/ 75</span></p><p class="sim-band b-${bk}">${band}</p>
+    <p class="meta">Pass 50 · merit 60 · distinction 65. Time used: ${mins} of ${R.minutes} minutes.</p>
+    <div class="sim-bars">${Object.keys(by).map(k => { const s = by[k], pc = Math.round(s.got / s.max * 100); return `<div class="sim-row"><span>${k}. ${esc(s.name)}</span><span class="sim-track"><i style="width:${pc}%" class="${pc >= 80 ? "g" : pc >= 60 ? "y" : "r"}"></i></span><b>${s.got}/${s.max}</b></div>`; }).join("")}</div>
+    ${weak && weak[1].got < weak[1].max ? `<p>Practise next: <b>${esc(weak[1].name)}</b> (${weak[1].got}/${weak[1].max}). The questions you missed are in Fix my mistakes.</p>` : `<p>Full marks in every section. Brilliant!</p>`}
+    <p class="row-btns"><button class="btn primary" type="button" data-act="examsim">Another exam</button><button class="btn" type="button" data-act="home">Home</button></p>
+    ${wrong.length ? `<details class="deep" open><summary>Go through the ${wrong.length} question${wrong.length > 1 ? "s" : ""} you missed</summary><ol class="sim-wrong">${wrong.map(q => `<li value="${q._sim.n}"><b>${esc(q.prompt)}</b>${q.sub ? ` <span class="meta">${esc(q.sub)}</span>` : ""}${q.big ? ` <span class="meta">${esc(q.big)}</span>` : ""}${q.write ? "" : `<br><span class="meta">Your answer: ${esc(ansTxt(q, q._pick))}. Right answer: <b>${esc(optLabel(q.opts[q.a]))}</b>.</span>`}<br>${esc(q.explain || "")}</li>`).join("")}</ol></details>` : ""}</div>`;
+}
+/* ---------- wiring ---------- */
+const _simRQ = renderQ;
+renderQ = function () { const r = _simRQ.apply(this, arguments); if (R && R.sim && R.active !== false && R.i < R.qs.length && R.el.querySelector(".q")) simDecorate(); return r; };
+const _simME = mockEnd;
+mockEnd = function () { if (R && R.sim) return simEnd(); return _simME.apply(this, arguments); };
+const _simTick = mockTick;
+mockTick = function () { _simTick.apply(this, arguments); if (!R || !R.sim || R.active === false) return; const left = R.end - Date.now();
+  [[10, "10 minutes left."], [5, "5 minutes left. Make sure every question has an answer."]].forEach(([m, msg]) => { if (left < m * 60000 && left > 0 && !R.sim.warned[m]) { R.sim.warned[m] = 1; const t = document.createElement("div"); t.className = "sim-toast"; t.setAttribute("role", "status"); t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 6000); } }); };
+document.addEventListener("click", e => {
+  const g = e.target.closest("[data-simg]"); if (g) { SIM_PICK = +g.dataset.simg; document.querySelectorAll("[data-simg]").forEach(b => b.setAttribute("aria-checked", b === g)); return; }
+  const go = e.target.closest("[data-simgo]"); if (go && R && R.sim) { R.i = +go.dataset.simgo; renderQ(); return; }
+  const a = e.target.closest("[data-act]"); if (a) { const act = a.dataset.act;
+    if (act === "examsim") { e.stopImmediatePropagation(); simHome(); }
+    else if (act === "simready") simReady();
+    else if (act === "simgo") simStart();
+    else if (act === "simflag" && R && R.sim) { R.sim.flags[R.i] = !R.sim.flags[R.i]; renderQ(); }
+    else if (act === "simreview" && R && R.sim) simReview();
+    else if (act === "simsubmit") { const c = $("simconf"); if (c) c.hidden = false; }
+    else if (act === "simnot") { const c = $("simconf"); if (c) c.hidden = true; }
+    else if (act === "simsure" && R && R.sim) simEnd();
+    return; }
+  if (R && R.sim && e.target.closest("[data-o], .wbox, [data-wa], svg")) setTimeout(simRefreshNav, 0);
+}, true);
+document.addEventListener("change", e => { const c = e.target.closest("[data-simc]"); if (!c) return; const all = [...document.querySelectorAll("[data-simc]")].every(x => x.checked), b = document.querySelector('[data-act="simgo"]'); if (b) b.disabled = !all; });
+/* the parent's papers list gets the simulator too */
+const _simPH = papersHTML;
+papersHTML = function () { const h = (state.sims || []).slice(-1)[0]; return _simPH.apply(this, arguments) + `<div class="pp-row" style="margin-top:10px"><b>Exam simulator</b><span class="meta">A fresh full paper every time, timed, in the online exam's style${h ? ` · last: ${h.score}/75 (${esc(lvlLabel(h.lvl))}) on ${short(h.date)}` : ""}</span><span class="spacer"></span><button class="btn small" type="button" data-act="examsim">Open</button></div>`; };
+/* the exam screen and results */
+(function () { const s = document.createElement("style"); s.textContent = `
+  html.sim-on .switch,html.sim-on #tp-bar{display:none!important}html.sim-on body.tp-on{padding-top:0}
+  .sim-intro{max-width:640px;margin:8px auto 24px}.sim-intro h2{margin:6px 0 10px}
+  .sim-grades{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:16px 0}
+  .sim-grades button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:14px;border-radius:14px;border:2px solid var(--line,#d5dbe3);background:var(--card,#fff);color:inherit;font:inherit;cursor:pointer;text-align:left}
+  .sim-grades button[aria-checked="true"]{border-color:var(--kid,#2D5B8C);box-shadow:0 0 0 2px var(--kid,#2D5B8C) inset}
+  .sim-grades small{opacity:.7}
+  .sim-check{list-style:none;padding:0;margin:14px 0}.sim-check li{padding:6px 0}.sim-check input{transform:scale(1.25);margin-right:8px}
+  .sim-hist{list-style:none;padding:0}.sim-hist li{display:grid;grid-template-columns:70px 1fr 60px 120px 60px;gap:8px;padding:8px 0;border-bottom:1px solid var(--line,#e3e3ea);align-items:center}
+  .sim-band{font-weight:700;border-radius:999px;padding:2px 10px;display:inline-block;width:max-content}
+  .b-d{background:#E3F1E8;color:#1F5C3F}.b-m{background:#E4EEF8;color:#24507D}.b-p{background:#FFF3D6;color:#7A5300}.b-n{background:#FBE5E2;color:#8E2C24}
+  .sim-bar{border-bottom:2px solid var(--line,#e3e3ea)}.sim-bar .timer{font-weight:700;font-size:18px}
+  .sim-nav{display:flex;flex-wrap:wrap;gap:6px 14px;margin:10px 0 4px;padding:10px;border-radius:12px;background:var(--card,#fff);border:1px solid var(--line,#e3e3ea)}
+  .sim-sec{display:flex;gap:4px;align-items:center}.sim-sn{font-weight:800;opacity:.6;margin-right:2px}
+  .sim-nav button{width:32px;height:32px;border-radius:8px;border:2px solid var(--line,#c9d0da);background:transparent;color:inherit;font:600 13px system-ui,sans-serif;cursor:pointer;position:relative}
+  .sim-nav button.ans{background:var(--kid,#2D5B8C);border-color:var(--kid,#2D5B8C);color:#fff}
+  .sim-nav button.flag::after{content:"";position:absolute;top:-5px;right:-5px;width:10px;height:10px;border-radius:50%;background:#E8A23A;border:2px solid var(--card,#fff)}
+  .sim-nav button.cur{outline:3px solid #E8A23A;outline-offset:1px}
+  .sim-key{width:100%;margin:4px 0 0;font-size:13px;opacity:.75;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .sim-key i{display:inline-block;width:12px;height:12px;border-radius:3px;border:2px solid var(--line,#c9d0da);vertical-align:middle}
+  .sim-key i.ans{background:var(--kid,#2D5B8C);border-color:var(--kid,#2D5B8C)}.sim-key i.flag{background:#E8A23A;border-color:#E8A23A;border-radius:50%}
+  .sim-flag.on{background:#FFF3D6;border-color:#E8A23A;color:#7A5300}
+  .sim-toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);z-index:70;background:#7A5300;color:#fff;padding:12px 18px;border-radius:12px;font:600 16px system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+  .sim-res{max-width:680px;margin:8px auto 30px}.sim-score{display:flex;align-items:baseline;gap:8px;margin:10px 0 0}.sim-score b{font-size:64px;line-height:1}.sim-score span{font-size:22px;opacity:.7}
+  .sim-res .sim-band{font-size:18px;margin:8px 0}
+  .sim-bars{display:grid;gap:8px;margin:16px 0}.sim-row{display:grid;grid-template-columns:minmax(0,220px) 1fr 52px;gap:10px;align-items:center}
+  .sim-track{height:12px;border-radius:999px;background:var(--line,#e3e3ea);overflow:hidden}.sim-track i{display:block;height:100%}
+  .sim-track i.g{background:#2C7A54}.sim-track i.y{background:#E8A23A}.sim-track i.r{background:#C2483D}
+  .sim-wrong li{margin-bottom:12px}
+  @media (max-width:560px){.sim-hist li{grid-template-columns:60px 1fr 54px;}.sim-hist li>:nth-child(n+4){grid-column:span 1}.sim-row{grid-template-columns:1fr 46px}.sim-row .sim-track{grid-column:1/3;order:3}}`;
+  document.head.appendChild(s); })();
+
+/* ================= Accuracy fixes from the examiner audit (Oct 11) ================= */
+(function () {
+  /* Faye's own printed papers stay exactly as they were; the paid course always gets the fixes */
+  const FREEZE = () => typeof TP === "undefined" && typeof OLDPAPER === "function" && OLDPAPER();
+  const PC = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }, pcOf = s => { const m = /^([A-G])([♯♭]?)/.exec(s); return m ? (PC[m[1]] + (m[2] === "♯" ? 1 : m[2] === "♭" ? -1 : 0) + 12) % 12 : null; };
+  /* "Which key is this melody in?": a minor-key melody must show its raised leading note */
+  const ctx = GEN.context;
+  GEN.context = lvl => {
+    if (FREEZE()) return ctx(lvl);
+    let q;
+    for (let t = 0; t < 12; t++) {
+      q = ctx(lvl);
+      if (q.prompt !== "Which key is this melody in?") return q;
+      const ans = optLabel(q.opts[q.a]); if (!/minor$/.test(ans)) return q;
+      const ln = (pcOf(ans) + 11) % 12; if ((q.play || []).some(m => ((m % 12) + 12) % 12 === ln)) return q;
+    }
+    return q;
+  };
+  /* "the opposite of": no other option may also be an opposite */
+  const SAME = [["allegro", "presto", "vivace", "allegretto"], ["adagio", "largo", "lento", "andante"], ["forte", "fortissimo"], ["piano", "pianissimo"], ["crescendo"], ["diminuendo", "decrescendo"], ["accelerando", "stringendo"], ["rallentando", "ritardando", "ritenuto", "allargando"]];
+  const terms = GEN.terms;
+  GEN.terms = lvl => {
+    const q = terms(lvl); if (FREEZE()) return q; const m = /^Which term means the opposite of (.+)\?$/.exec(q.prompt); if (!m) return q;
+    const ans = optLabel(q.opts[q.a]), grp = SAME.find(g => g.includes(ans)) || [ans], ask = m[1], askG = SAME.find(g => g.includes(ask)) || [ask];
+    const wr = q.opts.filter((o, i) => i !== q.a && !grp.includes(optLabel(o)) && !askG.includes(optLabel(o)));
+    const pool = ["legato", "staccato", "tutti", "solo", "pizzicato", "arco", "dolce", "cantabile", "tenuto", "con sordino"].filter(x => !grp.includes(x) && x !== ask && x !== ans && !wr.includes(x));
+    while (wr.length < 3 && pool.length) wr.push(pool.shift());
+    return Object.assign(q, mk("terms", q.prompt, ans, wr, q.explain, { big: q.big, italic: true, hint: q.hint }));
+  };
+  /* wrong-note scale questions: explain the actual wrong degree, not a fixed rule */
+  const scales = GEN.scales;
+  GEN.scales = lvl => {
+    const q = scales(lvl); if (FREEZE()) return q; const m = /^Note (\d) should be/.exec(q.explain || ""); if (!m) return q;
+    const n = +m[1];
+    if (!(n === 6 || n === 7)) q.explain = q.explain.replace(/ (Harmonic minor raises the 7th\.|Melodic minor raises the 6th and 7th going up\.)$/, ` Degree ${n} of this scale isn't one of the notes the minor form changes, so it follows the key signature.`);
+    return q;
+  };
+})();
+
 /* ---------- Drill catalogue ---------- */
 const DR = {
   notes:     { name: "Name the note",      icon: { clef: "treble", notes: [{ n: "G4", dur: "w" }], minW: 90, end: false }, unlock: 0 },
@@ -3561,6 +3766,7 @@ const DR = {
   transpose: { name: "Transposing", icon: { clef: "treble", notes: [{ n: "D5", dur: "w" }, { n: "C5", dur: "w" }], minW: 110, sp: 34, end: false }, unlock: 43 },
 };
 DR.check = { name: "Mark my answer", icon: null, glyph: "✓✗", unlock: 4 };
+DR.examsim = { name: "Exam simulator", icon: null, glyph: "75 ⏱", unlock: 12, special: true };
 const KINDS = Object.keys(DR);
 const lvlLabel = l => l <= 2 ? "Grade 1–2" : "Grade " + l;
 const doneCount = () => S.filter((_, i) => state.done[SID(i)]).length;
