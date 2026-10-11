@@ -856,7 +856,7 @@ const Eng = (function(){
           +'<rect x="'+(x+7)+'" y="30" width="3.2" height="40" fill="currentColor"/>'; placed.push(null); x+=20; return; }
         body+='<path d="M'+x+' 30L'+x+' 70" '+S+' stroke-width="1.5"/>'; placed.push(null); x+=16; return; }
       const dur=nt.dur||'q';
-      if(nt.n==='r'||nt.r){ body+=restG(dur,x+6); placed.push({x:x+6, rest:true, dur:dur, dot:!!nt.dot, midis:[]}); x+=sp; return; }
+      if(nt.n==='r'||nt.r){ body+=restG(dur,x+6); if(nt.dot) body+='<circle cx="'+(x+(dur==='w'||dur==='h'?24:20))+'" cy="45" r="1.7" fill="currentColor"/>'; placed.push({x:x+6, rest:true, dur:dur, dot:!!nt.dot, midis:[]}); x+=sp; return; }
       const list=Array.isArray(nt.n)?nt.n:[nt.n];
       const ys=list.map(function(n){ return yOf(n,clef); }); ys.forEach(function(y){ yMin=Math.min(yMin,y); yMax=Math.max(yMax,y); });
       let ax=x;
@@ -1800,8 +1800,8 @@ const GEN = {
     const clef = lvl >= 3 ? pick(clefsFor(lvl)) : pick(["treble", "treble", "bass"]);
     const name = minor ? MIN[k[0]] + " minor" : k[0] + " major";
     let why;
-    if (!k[1]) why = "No sharps or flats.";
-    else if (k[2] === "#") why = `The last sharp is ${"FCGDAEB"[k[1] - 1]}♯. One step up from it is ${k[0]}, so ${k[0]} major.`;
+    if (!k[1]) why = minor ? "No sharps or flats means C major." : "No sharps or flats: C major.";
+    else if (k[2] === "#") why = `The last sharp is ${"FCGDAEB"[k[1] - 1]}♯. One semitone up from it is ${k[0]}, so ${k[0]} major.`;
     else why = k[1] === 1 ? "One flat (B♭) means F major." : `The second-to-last flat is ${"BEADGCF"[k[1] - 2]}♭, so ${k[0]} major.`;
     if (minor) why += ` Its relative minor, on degree 6, is ${MIN[k[0]]} minor.`;
     return mk("keys", `Which ${mode} key has this key signature?`, name, pool.filter(x => x !== k).map(x => minor ? MIN[x[0]] + " minor" : x[0] + " major"), why,
@@ -1888,7 +1888,9 @@ const GEN = {
         const bn = (dots === 2 ? "double-dotted " : dots ? "dotted " : "") + big[0];
         const spec = big[2] === "b" || big[2] === "t" ? null : { clef: null, notes: [{ n: "B4", dur: big[2], dot: dots }], minW: 90, end: false };
         return mk("rhythm", `How many ${pl(small[0])} make one ${bn}?`, String(r), [r * 2, Math.max(1, r / 2 | 0), r + 1, r - 1, r + 2].filter(x => x > 0).map(String),
-          `A ${bn} lasts ${f(bv)} crotchet beat${bv === 1 ? "" : "s"}. A ${small[0]} lasts ${f(small[1])}. ${f(bv)} ÷ ${f(small[1])} = ${r}.${dots === 2 ? " The second dot adds half of the first dot." : ""}`, spec ? { spec } : { big: bn });
+          (() => { if (dots === 2) return `A ${bn} lasts ${f(bv)} crotchet beats. A ${small[0]} lasts ${f(small[1])}. ${f(bv)} ÷ ${f(small[1])} = ${r}. The second dot adds half of the first dot.`;
+            const r0 = big[1] / small[1], i0 = V.findIndex(x => x[0] === big[0]), i1 = V.findIndex(x => x[0] === small[0]), chain = V.slice(i0, i1 + 1).map((x, j) => j ? `${2 ** j} ${pl(x[0])}` : `1 ${x[0]}`).join(" = ");
+            return dots ? `A ${big[0]} is ${r0} ${pl(small[0])} (${chain}). The dot adds half as much again: ${r0} + ${r0 / 2} = ${r}.` : `Each note is worth two of the next shorter one: ${chain}.`; })(), spec ? { spec } : { big: bn });
       }
     }
     const ts = pick(TS.filter(t => type === "beat" ? t[2] !== "i" : true)), [top, bot, k] = ts;
@@ -1897,7 +1899,7 @@ const GEN = {
       const cnt = k === "c" ? top / 3 : top, unit = k === "c" ? DU[bot] : UNIT[bot];
       const ans = `${cnt} ${cnt === 1 ? unit : pl(unit)}`;
       return mk("rhythm", `How many beats in a bar, and what is the beat?`, ans, [`${top} ${pl(UNIT[bot])}`, `${cnt} ${pl(UNIT[bot / 2] || "semibreve")}`, `${top} ${pl(UNIT[bot * 2] || "demisemiquaver")}`, `${cnt} dotted ${pl(UNIT[bot * 2] || "semiquaver")}`],
-        k === "c" ? `${top}/${bot} is compound: ${top} ${pl(UNIT[bot])} grouped in threes make ${ans}.` : `${top}/${bot} is simple: the ${bot} means a ${UNIT[bot]} beat, and there are ${top} of them.`, { spec: tspec });
+        k === "c" ? `${top}/${bot} is compound: ${top} ${pl(UNIT[bot])} grouped in threes make ${ans}.` : `In ${top}/${bot}, the bottom ${bot} means each beat is a ${UNIT[bot]}, and the top ${top} means there are ${top} of them.`, { spec: tspec });
     }
     let ans;
     if (k === "i") ans = "irregular";
@@ -2136,7 +2138,7 @@ const XQ = {
       const minor = lvl >= 2 && Math.random() < .4, pool = keysFor(lvl, minor ? "minor" : "major"), k = pick(pool);
       const name = minor ? MIN[k[0]] + " minor" : k[0] + " major";
       const clef = lvl >= 3 ? pick(["treble", "bass"]) : "treble";
-      const opt = x => ({ spec: { clef, key: keyNum(x), notes: [], minW: 120, end: false }, label: `${x[1]} ${x[2] === "#" ? "sharps" : x[2] ? "flats" : ""}`.trim() || "no sharps or flats" });
+      const opt = x => ({ spec: { clef, key: keyNum(x), notes: [], minW: 120, end: false }, label: !x[1] ? "no sharps or flats" : (typeof TP === "undefined" && typeof OLDPAPER === "function" && OLDPAPER()) ? `${x[1]} ${x[2] === "#" ? "sharps" : "flats"}` : `${x[1]} ${x[2] === "#" ? "sharp" : "flat"}${x[1] > 1 ? "s" : ""}` });
       const mx = Math.max(...keysFor(lvl, "major").map(x => x[1])), others = MAJ.filter(x => x !== k && Math.abs(keyNum(x) - keyNum(k)) <= 3 && x[1] <= mx);
       return mk("keys", `Which is the key signature of ${name}?`, opt(k), others.map(opt), `${name} has ${k[1] ? k[1] + " " + (k[2] === "#" ? "sharp" : "flat") + (k[1] > 1 ? "s" : "") : "no sharps or flats"}.${minor ? ` It shares its key signature with its relative major, ${k[0]} major.` : ""}`, { big: name, bigOpts: true });
     }
@@ -2271,7 +2273,7 @@ const XQ = {
       ["Which of these is NOT a brass instrument?", "saxophone", ["trumpet", "trombone", "tuba"], "The saxophone is made of brass but uses a reed, so it's woodwind."],
       ["Which family makes sound with buzzing lips?", "brass", ["woodwind", "strings", "percussion"], "Brass players buzz their lips into a mouthpiece."],
       ["Which instrument has a slide?", "trombone", ["trumpet", "tuba", "French horn"], "The trombone changes notes by moving its slide."],
-      ["Which of these is a percussion instrument?", "timpani", ["harp", "bassoon", "horn"], "Timpani are big drums that play real notes."],
+      ["Which of these is a percussion instrument?", "timpani", ["harp", "bassoon", "horn"], "Timpani are big drums that can be tuned to play different notes."],
       ["Which instrument uses a double reed?", "bassoon", ["clarinet", "flute", "trumpet"], "The oboe and the bassoon use double reeds."],
       ["Which of these does the flute NOT need to make a sound?", "a reed", ["air", "a player", "keys to change notes"], "The flute has no reed: you blow across the hole."],
     ];
@@ -2861,8 +2863,8 @@ const INST = [
   ["trombone", "brass", "Buzzing lips. Uses a slide. Reads bass and tenor clef."], ["tuba", "brass", "The lowest brass instrument. Reads bass clef."],
   ["violin", "strings", "Bowed or plucked. The highest string instrument. Treble clef."], ["viola", "strings", "Bowed or plucked. Reads alto clef."],
   ["cello", "strings", "Bowed or plucked. Bass clef, and tenor clef for high notes."], ["double bass", "strings", "The lowest strings. Sounds an octave lower than written."],
-  ["harp", "strings", "Plucked strings, with pedals to change notes."], ["timpani", "percussion", "Big drums that play real notes. Bass clef."],
-  ["xylophone", "percussion", "Wooden bars hit with beaters; plays real notes."], ["cymbals", "percussion", "Two brass plates crashed together."],
+  ["harp", "strings", "Plucked strings, with pedals to change notes."], ["timpani", "percussion", "Big drums that can be tuned to play different notes. Bass clef."],
+  ["xylophone", "percussion", "Wooden bars hit with beaters; plays tunes."], ["cymbals", "percussion", "Two brass plates crashed together."],
   ["soprano", "voice", "The highest voice, usually women's and children's."], ["alto", "voice", "The lower women's voice."],
   ["tenor", "voice", "The higher men's voice."], ["bass", "voice", "The lowest men's voice."],
 ];
@@ -2906,7 +2908,7 @@ cardAnswer = function (knew) {
 };
 
 /* ---------- Note words: notes that spell a word ---------- */
-const NOTE_WORDS = ["BAG", "CAB", "BED", "BEE", "EGG", "ADD", "DAD", "ACE", "AGE", "FED", "BAD", "FAD", "GAG", "FACE", "CAGE", "CAFE", "FADE", "BEAD", "BEEF", "DEAF", "DEED", "FEED", "BADGE", "EDGE", "CABBAGE", "DECADE", "BAGGAGE", "ACCEDE", "DEFACE", "EFFACE", "BAGGED", "CAGED", "FACED", "FADED", "ADDED", "BEADED"];
+const NOTE_WORDS = ["BAG", "CAB", "BED", "BEE", "EGG", "ADD", "DAD", "ACE", "AGE", "FED", "BAD", "GAG", "FACE", "CAGE", "CAFE", "FADE", "BEAD", "BEEF", "DEED", "FEED", "BADGE", "EDGE", "CABBAGE", "DECADE", "BAGGAGE", "BAGGED", "CAGED", "FACED", "FADED", "ADDED", "BEADED"];
 GEN.words = function (lvl) {
   const w = pick(NOTE_WORDS), clefs = ["treble", "bass"].concat(lvl >= 4 && on("alto") ? ["alto"] : [], lvl >= 5 && on("tenor") ? ["tenor"] : []), clef = pick(lvl >= 3 ? clefs : ["treble", "treble", "bass"]);
   const lo = BOT[clef] - (lvl >= 3 ? 3 : 1), hi = BOT[clef] + (lvl >= 3 ? 11 : 9);
@@ -3249,7 +3251,7 @@ GEN.check = lvl => {
     if (!q || !q.opts || q.write || q.opts.length < 3 || q.opts.some(o => typeof o !== "string")) continue;
     const right = q.opts[q.a], others = q.opts.filter((_, i) => i !== q.a);
     const ok = Math.random() < .4, claim = ok ? right : pick(others), who = pick(FRIENDS);
-    const yes = "Yes, that's right", fix = x => "No, it's " + (/^(a|an|the) /i.test(x) || !/ /.test(x) ? x : /^(major|minor|perfect|augmented|diminished|compound|tonic|dominant|subdominant)\b/i.test(x) || /(rest|cadence|scale|clef)$/.test(x) ? art(x) : x);
+    const yes = "Yes, that's right", fix = x => "No, it's " + (/^(\d+(st|nd|rd|th)|octave|unison)$/i.test(x) ? (/^(8|11|18)|^octave|^unison/i.test(x) ? "an " : "a ") + x : /^(a|an|the) /i.test(x) || !/ /.test(x) ? x : /^(major|minor|perfect|augmented|diminished|compound|tonic|dominant|subdominant)\b/i.test(x) || /(rest|cadence|scale|clef)$/.test(x) ? art(x) : x);
     const opts = shuffle([yes].concat(ok ? shuffle(others).slice(0, 3).map(fix) : [fix(right)].concat(shuffle(others.filter(o => o !== claim)).slice(0, 2).map(fix))));
     const ans = ok ? yes : fix(right);
     const out = Object.assign({}, q, { kind: "check", src, letters: false, prompt: `${q.prompt.replace(/\s+$/, "")} ${who} answered "${claim}". Is that right?`, opts, a: opts.indexOf(ans),
@@ -3738,7 +3740,7 @@ papersHTML = function () { const h = (state.sims || []).slice(-1)[0]; return _si
   GEN.scales = lvl => {
     const q = scales(lvl); if (FREEZE()) return q; const m = /^Note (\d) should be/.exec(q.explain || ""); if (!m) return q;
     const n = +m[1];
-    if (!(n === 6 || n === 7)) q.explain = q.explain.replace(/ (Harmonic minor raises the 7th\.|Melodic minor raises the 6th and 7th going up\.)$/, ` Degree ${n} of this scale isn't one of the notes the minor form changes, so it follows the key signature.`);
+    if (!(n === 6 || n === 7)) q.explain = q.explain.replace(/ (Harmonic minor raises the 7th\.|Melodic minor raises the 6th and 7th going up\.)$/, ` Note ${n} is the same in every form of the minor scale: only notes 6 and 7 can change.`);
     return q;
   };
 })();
@@ -4127,7 +4129,7 @@ function hintFor(q) {
   const clef = (q.write && q.write.clef) || (q.spec && q.spec.clef);
   const CH = { treble: "Treble clef lines from the bottom: E G B D F. Spaces: F A C E.", bass: "Bass clef lines from the bottom: G B D F A. Spaces: A C E G.", alto: "Alto clef: middle C is the middle line. Count up or down from there.", tenor: "Tenor clef: middle C is the 4th line up. Count up or down from there." };
   if (q.kind === "notes" || q.kind === "write") return CH[clef] || CH.treble;
-  if (q.kind === "keys") { const k = q.spec && q.spec.key || 0; return /minor/.test(q.prompt) ? "Find the major key first. Its relative minor starts on note 6 of that scale." : k > 0 ? "Find the last sharp, then go up one step." : k < 0 ? (k === -1 ? "One flat is a special one to remember." : "The second-to-last flat names the key.") : "No sharps or flats at all."; }
+  if (q.kind === "keys") { const k = q.spec && q.spec.key || 0; return /minor/.test(q.prompt) ? "Find the major key first. Its relative minor starts on note 6 of that scale." : k > 0 ? "Find the last sharp, then go up one semitone." : k < 0 ? (k === -1 ? "One flat is a special one to remember." : "The second-to-last flat names the key.") : "No sharps or flats at all."; }
   if (q.kind === "scales") return "Major: tone, tone, semitone, tone, tone, tone, semitone. Harmonic minor raises note 7; melodic minor raises 6 and 7 going up.";
   if (q.kind === "intervals") return /number/.test(q.prompt) ? "Count the letter names, including both notes." : "First count the letters for the number. Then think: is the top note in the major scale of the bottom note?";
   if (q.kind === "rhythm") return /kind|beats in a bar/.test(q.prompt) ? "Does the top number divide by 3 (and isn't 3)? Then it's compound." : "A crotchet is 1 beat. How many beats does the bigger note last?";
@@ -4231,7 +4233,7 @@ function kidTitle(s) {
   return t.replace(/\s*\(.*?\)/g, "").replace(/;.*$/, "");
 }
 function kidToday() {
-  const i = nextIdx(), s = S[i], lvl = Math.max(2, s[1]), un = unlocked().filter(k => !DR[k].fun);
+  const i = nextIdx(), s = S[i], lvl = Math.max(2, s[1]), un = unlocked().filter(k => !DR[k].fun && GEN[k]);
   const main = un.includes(s[2]) ? s[2] : "notes";
   const list = [];
   const trip = onTrip(), nMain = trip ? 3 : 5, nRev = trip ? 2 : 5;
